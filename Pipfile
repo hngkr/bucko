@@ -1,0 +1,20 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+awsume = "*"
+awscli = "*"
+awslogs = "*"
+
+[packages]
+requests = "*"
+requests-oauthlib = "*"
+flywheel = "*"
+
+[requires]
+python_version = "3.7"
+
+[pipenv]
+allow_prereleases = true

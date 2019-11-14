@@ -1,0 +1,83 @@
+---
+service: apigw-bucko
+
+frameworkVersion: ">=1.2.0 <2.0.0"
+
+custom:
+  pythonRequirements:
+    dockerizePip: non-linux
+
+provider:
+  name: aws
+  runtime: python3.7
+  region: ${opt:region, 'eu-west-1'}
+  stage: ${opt:stage, 'dev'}
+
+  environment:
+    DYNAMODB_TABLE: "${self:service}-${opt:stage, self:provider.stage}"
+    api_url: 'https://api-sandbox.tradeshift.com'
+    client_id: ${file(${self:provider.stage}-secrets.yml):client_id}
+    client_secret: ${file(${self:provider.stage}-secrets.yml):client_secret}
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+        - dynamodb:BatchWriteItems
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+
+
+# https://api-sandbox.tradeshift.com/tradeshift/auth/login?response_type=code&client_id=HenningsSandboxSeller.zd4vt86hbj&redirect_uri=https://zd4vt86hbj.execute-api.eu-west-1.amazonaws.com/dev/oauth2/callback/&scope=offline&state=
+
+plugins:
+  - serverless-python-requirements
+
+package:
+  include:
+    - requirements.txt # not needed, just for reference
+
+functions:
+  oauth2_callback:
+    handler: handler.oauth2_callback
+    events:
+      - http:
+          path: /oauth2/callback
+          method: GET
+          cors: true
+
+  root:
+    handler: handler.root
+    events:
+      - http:
+          path: /
+          method: GET
+          cors: true
+
+  health:
+    handler: handler.health
+    events:
+      - http:
+          path: /health
+          method: GET
+          cors: true
+
+resources:
+  Resources:
+    SessionTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Delete
+      Properties:
+        BillingMode: PAY_PER_REQUEST
+        # Configure TTL for cleanup?
+        AttributeDefinitions:
+          - AttributeName: key
+            AttributeType: S
+        KeySchema:
+          - AttributeName: key
+            KeyType: HASH
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}
