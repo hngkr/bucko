@@ -14,7 +14,7 @@ provider:
   stage: ${opt:stage, 'dev'}
 
   environment:
-    DYNAMODB_TABLE: "${self:service}-${opt:stage, self:provider.stage}"
+    SESSIONS_TABLENAME: "${self:service}-${opt:stage, self:provider.stage}"
     api_url: 'https://api-sandbox.tradeshift.com'
     client_id: ${file(${self:provider.stage}-secrets.yml):client_id}
     client_secret: ${file(${self:provider.stage}-secrets.yml):client_secret}
@@ -28,8 +28,9 @@ provider:
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
-        - dynamodb:BatchWriteItems
-      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+        - dynamodb:BatchWriteItem
+        - dynamodb:BatchGetItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.SESSIONS_TABLENAME}"
 
 
 # https://api-sandbox.tradeshift.com/tradeshift/auth/login?response_type=code&client_id=HenningsSandboxSeller.zd4vt86hbj&redirect_uri=https://zd4vt86hbj.execute-api.eu-west-1.amazonaws.com/dev/oauth2/callback/&scope=offline&state=
@@ -80,4 +81,4 @@ resources:
         KeySchema:
           - AttributeName: key
             KeyType: HASH
-        TableName: ${self:provider.environment.DYNAMODB_TABLE}
+        TableName: ${self:provider.environment.SESSIONS_TABLENAME}
