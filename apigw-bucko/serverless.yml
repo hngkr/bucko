@@ -43,29 +43,39 @@ package:
     - requirements.txt # not needed, just for reference
 
 functions:
-  oauth2_callback:
-    handler: handler.oauth2_callback
-    events:
-      - http:
-          path: /oauth2/callback
-          method: GET
-          cors: true
+#  oauth2_code:
+#    handler: handler.oauth2_code
+#    events:
+#      - http:
+#          path: /oauth2/code
+#          method: GET
+#          cors: true
 
-  root:
-    handler: handler.root
+#  root:
+#    handler: handler.root
+#    events:
+#      - http:
+#          path: /
+#          method: GET
+#          cors: true
+
+  wildcard:
+    handler: handler.wildcard
     events:
       - http:
-          path: /
+          path: /{catchall+}
           method: GET
-          cors: true
+          request:
+            parameters:
+              paths:
+                catchall: false
 
   health:
     handler: handler.health
     events:
       - http:
-          path: /health
+          path: health
           method: GET
-          cors: true
 
 resources:
   Resources:
