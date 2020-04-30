@@ -80,8 +80,6 @@ def wildcard(event, context):
         print(f"oauth_state: {oauth_state}")
         print(f"code: {code}")
 
-
-
         response = {
             "statusCode": 200,
             "body": f"<html><body><h1>Hi - redirect landing! (from {domain_name})</h1></body></html>",
@@ -190,7 +188,7 @@ def oauth2_code(event, context):
         saved_session = engine.get(SessionObject, key=key)
         oauth_state = saved_session.state
 
-    tradeshift = OAuth2Session(client_id, state=oauth_state)
+    tradeshift = f(client_id, state=oauth_state)
 
     print(f"code: {code}")
     print(f"oauth_state: {oauth_state}")

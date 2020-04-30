@@ -10,9 +10,7 @@ awslogs = "*"
 
 [packages]
 requests = "*"
-requests-oauthlib = "*"
 flywheel = "*"
-oauth2-client = "*"
 authlib = "*"
 
 [requires]
